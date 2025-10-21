@@ -24,11 +24,11 @@ dependencies {
 
 test {
     useJUnitPlatform()
+
+    // Используем Firefox вместо Chrome
     systemProperties = [
             'selenide.headless': 'true',
-            'selenide.browser': 'chrome',
-            'selenide.remote': '',
-            'selenide.pageLoadStrategy': 'eager',
-            'chromeoptions.args': '--remote-allow-origins=* --disable-dev-shm-usage --no-sandbox --disable-gpu --window-size=1920,1080 --disable-extensions --disable-background-timer-throttling --disable-renderer-backgrounding --disable-backgrounding-occluded-windows --disable-features=Translate,BackForwardCache --disable-ipc-flooding-protection --enable-precise-memory-info --hide-scrollbars --metrics-recording-only --mute-audio --no-default-browser-check --no-first-run --disable-default-apps --disable-popup-blocking --disable-back-forward-cache --disable-component-extensions-with-background-pages --disable-features=AudioServiceOutOfProcess,ImprovedCookieControls,LazyFrameLoading,GlobalMediaControls,DestroyProfileOnBrowserClose,MediaRouter,AcceptCHFrame --disable-component-update --disable-domain-reliability --disable-sync --no-sandbox --disable-web-security --allow-running-insecure-content --disable-notifications --disable-logging'
+            'selenide.browser': 'firefox',
+            'selenide.pageLoadStrategy': 'eager'
     ]
 }
