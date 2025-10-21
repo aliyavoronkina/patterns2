@@ -15,14 +15,20 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
+      - name: Make gradlew executable
+        run: chmod +x ./gradlew
+
       - name: Setup Chrome
         uses: browser-actions/setup-chrome@v1
 
+      - name: Build application
+        run: ./gradlew build -x test
+
       - name: Start application in test mode
-        run: java -jar app-ibank.jar -P:profile=test &
+        run: java -jar ./build/libs/app-ibank.jar -P:profile=test &
 
       - name: Wait for application to start
-        run: sleep 10
+        run: sleep 15
 
-      - name: Run tests
-        run: ./gradlew test -Dselenide.headless=true
+      - name: Run tests with detailed info
+        run: ./gradlew test --info -Dselenide.headless=true
