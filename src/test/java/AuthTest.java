@@ -1,7 +1,5 @@
 import com.codeborne.selenide.Configuration;
 import org.junit.jupiter.api.*;
-import org.junit.jupiter.api.BeforeEach;
-
 import static com.codeborne.selenide.Condition.*;
 import static com.codeborne.selenide.Selenide.*;
 
@@ -11,7 +9,8 @@ public class AuthTest {
     @BeforeAll
     static void setUpAll() {
         Configuration.browserSize = "1280x800";
-        Configuration.headless = true;
+        Configuration.headless = false;
+        Configuration.timeout = 10000;
     }
 
     @BeforeEach
@@ -27,8 +26,8 @@ public class AuthTest {
         $("[data-test-id=password] input").setValue(registeredUser.getPassword());
         $("[data-test-id=action-login]").click();
 
-        // Проверяем успешный вход
-        $("h2").shouldBe(visible).shouldHave(text("Личный кабинет"));
+        // Проверяем успешный вход - должен появиться "Личный кабинет"
+        $("h2").shouldBe(visible).shouldHave(exactText("Личный кабинет"));
     }
 
     @Test
@@ -39,10 +38,9 @@ public class AuthTest {
         $("[data-test-id=password] input").setValue(blockedUser.getPassword());
         $("[data-test-id=action-login]").click();
 
-        // Проверяем сообщение об ошибке для заблокированного пользователя
         $("[data-test-id=error-notification] .notification__content")
                 .shouldBe(visible)
-                .shouldHave(text("заблокирован"));
+                .shouldHave(text("Ошибка! Пользователь заблокирован"));
     }
 
     @Test
@@ -53,10 +51,9 @@ public class AuthTest {
         $("[data-test-id=password] input").setValue(user.getPassword());
         $("[data-test-id=action-login]").click();
 
-        // Проверяем сообщение об ошибке неверного логина/пароля
         $("[data-test-id=error-notification] .notification__content")
                 .shouldBe(visible)
-                .shouldHave(text("Неверно указан логин или пароль"));
+                .shouldHave(text("Ошибка! Неверно указан логин или пароль"));
     }
 
     @Test
@@ -67,24 +64,19 @@ public class AuthTest {
         $("[data-test-id=password] input").setValue("invalid_" + user.getPassword());
         $("[data-test-id=action-login]").click();
 
-        // Проверяем сообщение об ошибке неверного логина/пароля
         $("[data-test-id=error-notification] .notification__content")
                 .shouldBe(visible)
-                .shouldHave(text("Неверно указан логин или пароль"));
+                .shouldHave(text("Ошибка! Неверно указан логин или пароль"));
     }
 
     @Test
     void shouldNotLoginWithNotRegisteredUser() {
-        String randomLogin = "notregistereduser";
-        String randomPassword = "randompassword123";
-
-        $("[data-test-id=login] input").setValue(randomLogin);
-        $("[data-test-id=password] input").setValue(randomPassword);
+        $("[data-test-id=login] input").setValue("notregistereduser");
+        $("[data-test-id=password] input").setValue("randompassword123");
         $("[data-test-id=action-login]").click();
 
-        // Проверяем сообщение об ошибке для незарегистрированного пользователя
         $("[data-test-id=error-notification] .notification__content")
                 .shouldBe(visible)
-                .shouldHave(text("Неверно указан логин или пароль"));
+                .shouldHave(text("Ошибка! Неверно указан логин или пароль"));
     }
 }

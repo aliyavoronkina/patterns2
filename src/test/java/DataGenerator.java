@@ -22,12 +22,7 @@ public class DataGenerator {
     private DataGenerator() {
     }
 
-    public static RegistrationDto getRegisteredUser(String status) {
-        String login = faker.name().username();
-        String password = faker.internet().password();
-        RegistrationDto user = new RegistrationDto(login, password, status);
-
-        // Регистрируем пользователя через API
+    public static void sendRequest(RegistrationDto user) {
         given()
                 .spec(requestSpec)
                 .body(user)
@@ -35,7 +30,13 @@ public class DataGenerator {
                 .post("/api/system/users")
                 .then()
                 .statusCode(200);
+    }
 
+    public static RegistrationDto getRegisteredUser(String status) {
+        String login = faker.name().username();
+        String password = faker.internet().password();
+        RegistrationDto user = new RegistrationDto(login, password, status);
+        sendRequest(user);
         return user;
     }
 
