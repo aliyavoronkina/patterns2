@@ -3,6 +3,7 @@ import io.restassured.builder.RequestSpecBuilder;
 import io.restassured.filter.log.LogDetail;
 import io.restassured.http.ContentType;
 import io.restassured.specification.RequestSpecification;
+import lombok.Value;
 
 import java.util.Locale;
 
@@ -22,7 +23,7 @@ public class DataGenerator {
     private DataGenerator() {
     }
 
-    public static void sendRequest(RegistrationDto user) {
+    private static void sendRequest(RegistrationDto user) {
         given()
                 .spec(requestSpec)
                 .body(user)
@@ -40,27 +41,10 @@ public class DataGenerator {
         return user;
     }
 
+    @Value
     public static class RegistrationDto {
-        private String login;
-        private String password;
-        private String status;
-
-        public RegistrationDto(String login, String password, String status) {
-            this.login = login;
-            this.password = password;
-            this.status = status;
-        }
-
-        public String getLogin() {
-            return login;
-        }
-
-        public String getPassword() {
-            return password;
-        }
-
-        public String getStatus() {
-            return status;
-        }
+        String login;
+        String password;
+        String status;
     }
 }
