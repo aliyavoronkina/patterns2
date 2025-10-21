@@ -27,18 +27,25 @@ jobs:
 
       - name: Wait for app to start
         run: |
-          timeout 30s bash -c '
-            while ! curl -f http://localhost:9999; do
+          timeout 60s bash -c '
+            while ! curl -f -s http://localhost:9999 > /dev/null; do
               echo "Waiting for app to start..."
               sleep 3
             done
           ' || exit 1
+        env:
+          # Добавьте переменные окружения для приложения если нужно
+          SPRING_PROFILES_ACTIVE: test
 
       - name: Clean up browser processes
         run: |
           pkill -f chrome || true
           pkill -f chromedriver || true
-          sleep 2
+          rm -rf /tmp/chrome_profile* || true
+          sleep 3
 
       - name: Test with Gradle
-        run: ./gradlew test --info -Dselenide.headless=true
+        run: ./gradlew test --info
+        env:
+          # Дополнительные настройки для стабильности тестов
+          SELENIDE_HEADLESS: true

@@ -25,4 +25,6 @@ dependencies {
 test {
     useJUnitPlatform()
     systemProperty 'selenide.headless', System.getProperty('selenide.headless', 'true')
+    // Добавьте эти настройки для решения проблемы с Chrome
+    systemProperty 'chromeoptions.args', '--remote-allow-origins=* --disable-dev-shm-usage --no-sandbox --disable-gpu --window-size=1920,1080 --user-data-dir=/tmp/chrome_profile'
 }
