@@ -1,6 +1,6 @@
 plugins {
     id 'java'
-    id 'io.freefair.lombok' version '6.6.1'  // Правильный плагин
+    id 'io.freefair.lombok' version '6.6.1'
 }
 
 group = 'ru.netology'
@@ -21,9 +21,6 @@ dependencies {
     testImplementation 'com.google.code.gson:gson:2.10.1'
     testImplementation 'com.github.javafaker:javafaker:1.0.2'
 
-    // Дополнительно можно добавить (но не обязательно с плагином)
-    // compileOnly 'org.projectlombok:lombok:1.18.24'
-    // annotationProcessor 'org.projectlombok:lombok:1.18.24'
 }
 
 test {
