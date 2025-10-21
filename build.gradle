@@ -24,11 +24,13 @@ dependencies {
 
 test {
     useJUnitPlatform()
+    systemProperty 'selenide.headless', System.getProperty('selenide.headless', 'true')
 
-    // Используем Firefox вместо Chrome
+    // Минимальные настройки для Chrome
     systemProperties = [
             'selenide.headless': 'true',
-            'selenide.browser': 'firefox',
-            'selenide.pageLoadStrategy': 'eager'
+            'selenide.browser': 'chrome',
+            'selenide.pageLoadStrategy': 'eager',
+            'chromeoptions.args': '--remote-allow-origins=* --disable-dev-shm-usage --no-sandbox --disable-gpu --window-size=1920,1080'
     ]
 }

@@ -19,10 +19,14 @@ jobs:
           java-version: '17'
           distribution: 'temurin'
 
-      - name: Install Firefox for Selenide
+      - name: Install Chrome dependencies
         run: |
           sudo apt-get update
-          sudo apt-get install -y firefox
+          sudo apt-get install -y wget
+          wget -q -O - https://dl.google.com/linux/linux_signing_key.pub | sudo apt-key add -
+          echo "deb [arch=amd64] http://dl.google.com/linux/chrome/deb/ stable main" | sudo tee /etc/apt/sources.list.d/google-chrome.list
+          sudo apt-get update
+          sudo apt-get install -y google-chrome-stable
 
       - name: Make gradlew executable
         run: chmod +x gradlew
@@ -40,6 +44,14 @@ jobs:
             echo "Waiting for app to start... ($i/30)"
             sleep 2
           done
+
+      - name: Clean browser processes and temp files
+        run: |
+          pkill -f chrome || true
+          pkill -f chromedriver || true
+          rm -rf /tmp/.com.google.Chrome.* || true
+          rm -rf /tmp/chrome-profile* || true
+          sleep 3
 
       - name: Test with Gradle
         run: ./gradlew test --info
