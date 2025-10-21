@@ -20,10 +20,14 @@ dependencies {
     testImplementation 'io.rest-assured:rest-assured:5.5.0'
     testImplementation 'com.google.code.gson:gson:2.10.1'
     testImplementation 'com.github.javafaker:javafaker:1.0.2'
-
 }
 
 test {
     useJUnitPlatform()
-    systemProperty 'selenide.headless', System.getProperty('selenide.headless', 'false')
+    systemProperties = [
+            'selenide.browser': 'chrome',
+            'selenide.headless': 'true',
+            'selenide.timeout': '15000',
+            'chromeoptions.args': '--remote-allow-origins=* --disable-dev-shm-usage --no-sandbox --disable-gpu --window-size=1920,1080 --user-data-dir=/tmp/chrome-profile-' + System.currentTimeMillis()
+    ]
 }

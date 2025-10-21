@@ -28,7 +28,7 @@ jobs:
         run: java -jar ./build/libs/app-ibank.jar -P:profile=test &
 
       - name: Wait for application to start
-        run: sleep 15
+        run: sleep 20
 
-      - name: Run tests with detailed info
-        run: ./gradlew test --info -Dselenide.headless=true
+      - name: Run tests
+        run: ./gradlew test --info

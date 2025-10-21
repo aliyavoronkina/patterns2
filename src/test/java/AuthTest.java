@@ -1,5 +1,7 @@
 import com.codeborne.selenide.Configuration;
 import org.junit.jupiter.api.*;
+import java.util.UUID;
+
 import static com.codeborne.selenide.Condition.*;
 import static com.codeborne.selenide.Selenide.*;
 
@@ -8,14 +10,28 @@ public class AuthTest {
 
     @BeforeAll
     static void setUpAll() {
-        Configuration.browserSize = "1280x800";
-        Configuration.headless = false;
-        Configuration.timeout = 10000;
+        Configuration.browserSize = "1920x1080";
+        Configuration.headless = true;
+        Configuration.timeout = 15000;
+
+        // Уникальный user-data-dir для каждого запуска
+        System.setProperty("chromeoptions.args",
+                "--remote-allow-origins=* " +
+                        "--disable-dev-shm-usage " +
+                        "--no-sandbox " +
+                        "--disable-gpu " +
+                        "--user-data-dir=/tmp/chrome-profile-" + UUID.randomUUID()
+        );
     }
 
     @BeforeEach
     void setUp() {
         open(BASE_URL);
+    }
+
+    @AfterEach
+    void tearDown() {
+        closeWebDriver();
     }
 
     @Test
