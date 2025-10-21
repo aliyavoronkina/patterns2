@@ -35,6 +35,12 @@ jobs:
           sleep 15
           echo "Application should be running now"
 
+      - name: Clean up browser processes
+        run: |
+          pkill -f chrome || true
+          pkill -f chromedriver || true
+          sleep 2 
+
       - name: Test with Gradle
         run: ./gradlew test --info -Dselenide.headless=true
 
