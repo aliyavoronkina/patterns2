@@ -22,13 +22,48 @@ jobs:
         uses: browser-actions/setup-chrome@v1
 
       - name: Download application
-        run: wget -O app-ibank.jar "https://github.com/netology-code/qa-diploma/releases/download/v1.0.1/app-ibank.jar"
+        run: |
+          echo "Trying to download application from different sources..."
+          # Попробуем несколько возможных ссылок
+          wget -O app-ibank.jar "https://github.com/netology-code/aqa-homeworks/raw/master/patterns/app-ibank.jar" || \
+          wget -O app-ibank.jar "https://raw.githubusercontent.com/netology-code/aqa-homeworks/master/patterns/app-ibank.jar" || \
+          echo "Trying alternative download methods..."
+
+      - name: Check if application was downloaded
+        run: |
+          if [ -f "app-ibank.jar" ]; then
+            echo "✅ Application downloaded successfully"
+            ls -la app-ibank.jar
+          else
+            echo "❌ Application download failed, trying git clone method..."
+            # Попробуем клонировать репозиторий и взять файл оттуда
+            git clone https://github.com/netology-code/aqa-homeworks.git temp-repo
+            cp temp-repo/patterns/app-ibank.jar ./
+            rm -rf temp-repo
+          fi
+
+      - name: Final check
+        run: |
+          if [ -f "app-ibank.jar" ]; then
+            echo "✅ Application is ready for testing"
+            ls -la app-ibank.jar
+          else
+            echo "❌ CRITICAL: Application not found after all attempts"
+            exit 1
+          fi
 
       - name: Start application in test mode
         run: java -jar app-ibank.jar -P:profile=test &
 
       - name: Wait for application to start
         run: sleep 30
+
+      - name: Check if application is running
+        run: |
+          echo "Checking if application is running on port 9999..."
+          curl -f http://localhost:9999 || \
+          curl -f http://localhost:9999 || \
+          (echo "Application may not be running properly" && exit 1)
 
       - name: Run tests
         run: ./gradlew test --info
