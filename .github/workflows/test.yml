@@ -21,14 +21,14 @@ jobs:
       - name: Setup Chrome
         uses: browser-actions/setup-chrome@v1
 
-      - name: Build application
-        run: ./gradlew build -x test
+      - name: Download application
+        run: wget -O app-ibank.jar "https://github.com/netology-code/qa-diploma/releases/download/v1.0.1/app-ibank.jar"
 
       - name: Start application in test mode
-        run: java -jar ./build/libs/app-ibank.jar -P:profile=test &
+        run: java -jar app-ibank.jar -P:profile=test &
 
       - name: Wait for application to start
-        run: sleep 20
+        run: sleep 30
 
       - name: Run tests
         run: ./gradlew test --info

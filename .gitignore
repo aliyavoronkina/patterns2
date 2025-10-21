@@ -41,3 +41,5 @@ out/
 ### Exclusions ###
 !**/src/main/**
 !**/src/test/**
+*.jar
+!app-ibank.jar
