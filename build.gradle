@@ -23,5 +23,6 @@ dependencies {
 
 test {
     useJUnitPlatform()
-    systemProperty 'selenide.headless', System.getProperty('selenide.headless')
+    systemProperty 'selenide.headless', System.getProperty('selenide.headless', 'true')
+    systemProperty 'chromeoptions.args', '--remote-allow-origins=*,--disable-dev-shm-usage,--no-sandbox,--disable-gpu'
 }

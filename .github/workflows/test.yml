@@ -21,6 +21,11 @@ jobs:
       - name: Start application in test mode
         run: java -jar artifacts/app-ibank.jar -P:profile=test &
 
+      - name: Setup Chrome
+        uses: browser-actions/setup-chrome@v1
+        with:
+          chrome-version: stable
+
 
       - name: Run tests with detailed info
         run: ./gradlew test --info
