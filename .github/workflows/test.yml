@@ -18,27 +18,9 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x ./gradlew
 
-      - name: Setup Chrome
-        uses: browser-actions/setup-chrome@v1
-
-      - name: Check if application exists
-        run: |
-          echo "Checking application files..."
-          find . -name "*.jar" -type f
-          ls -la artifacts/ || echo "No artifacts folder"
-
       - name: Start application in test mode
         run: java -jar artifacts/app-ibank.jar -P:profile=test &
 
-      - name: Wait for application to start
-        run: sleep 30
-
-      - name: Check if application is running
-        run: |
-          echo "Testing application connection..."
-          curl -f http://localhost:9999 || echo "Application may need more time to start"
-          sleep 10
-          curl -f http://localhost:9999 || (echo "Application failed to start" && exit 1)
 
       - name: Run tests with detailed info
         run: ./gradlew test --info

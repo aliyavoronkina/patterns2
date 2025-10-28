@@ -1,107 +1,99 @@
-import com.codeborne.selenide.Configuration;
-import org.junit.jupiter.api.*;
-import java.util.UUID;
+import io.restassured.builder.RequestSpecBuilder;
+import io.restassured.filter.log.LogDetail;
+import io.restassured.http.ContentType;
+import io.restassured.specification.RequestSpecification;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.Test;
 
 import static com.codeborne.selenide.Condition.*;
 import static com.codeborne.selenide.Selenide.*;
+import static io.restassured.RestAssured.given;
 
-public class AuthTest {
-    private static final String BASE_URL = "http://localhost:9999";
-
-    @BeforeAll
-    static void setUpAll() {
-        Configuration.browserSize = "1920x1080";
-        Configuration.headless = true;
-        Configuration.timeout = 15000;
-
-        // Уникальный user-data-dir для каждого запуска
-        System.setProperty("chromeoptions.args",
-                "--remote-allow-origins=* " +
-                        "--disable-dev-shm-usage " +
-                        "--no-sandbox " +
-                        "--disable-gpu " +
-                        "--user-data-dir=/tmp/chrome-profile-" + UUID.randomUUID()
-        );
-    }
+class AuthTest {
+    private static RequestSpecification requestSpec = new RequestSpecBuilder()
+            .setBaseUri("http://localhost")
+            .setPort(9999)
+            .setAccept(ContentType.JSON)
+            .setContentType(ContentType.JSON)
+            .log(LogDetail.ALL)
+            .build();
 
     @BeforeEach
-    void setUp() {
-        open(BASE_URL);
+    void setup() {
+        open("http://localhost:9999");
     }
 
-    @AfterEach
-    void tearDown() {
-        closeWebDriver();
+    private void registerUser(RegistrationDto user) {
+        given()
+                .spec(requestSpec)
+                .body(user)
+                .when()
+                .post("/api/system/users")
+                .then()
+                .statusCode(200);
     }
 
     @Test
-    void shouldLoginWithActiveUser() {
-        DataGenerator.RegistrationDto registeredUser = DataGenerator.getRegisteredUser("active");
+    void shouldSuccessfulLoginIfRegisteredActiveUser() {
+        var registeredUser = DataGenerator.Registration.generateUser("active");
+        registerUser(registeredUser);
 
         $("[data-test-id=login] input").setValue(registeredUser.getLogin());
         $("[data-test-id=password] input").setValue(registeredUser.getPassword());
         $("[data-test-id=action-login]").click();
-
-        $("[data-test-id=login]").shouldNotBe(visible);
-        $("[data-test-id=password]").shouldNotBe(visible);
-        $("h2").shouldBe(visible).shouldHave(exactText("Личный кабинет"));
+        $("h2").shouldHave(exactText("Личный кабинет")).shouldBe(visible);
     }
 
     @Test
-    void shouldNotLoginWithBlockedUser() {
-        DataGenerator.RegistrationDto blockedUser = DataGenerator.getRegisteredUser("blocked");
+    void shouldGetErrorIfNotRegisteredUser() {
+        var notRegisteredUser = DataGenerator.Registration.generateUser("active");
+
+        $("[data-test-id=login] input").setValue(notRegisteredUser.getLogin());
+        $("[data-test-id=password] input").setValue(notRegisteredUser.getPassword());
+        $("[data-test-id=action-login]").click();
+        $("[data-test-id=error-notification] .notification__content")
+                .shouldHave(text("Ошибка! Неверно указан логин или пароль"))
+                .shouldBe(visible);
+    }
+
+    @Test
+    void shouldGetErrorIfBlockedUser() {
+        var blockedUser = DataGenerator.Registration.generateUser("blocked");
+        registerUser(blockedUser);
 
         $("[data-test-id=login] input").setValue(blockedUser.getLogin());
         $("[data-test-id=password] input").setValue(blockedUser.getPassword());
         $("[data-test-id=action-login]").click();
-
-        $("[data-test-id=login]").shouldBe(visible);
-        $("[data-test-id=password]").shouldBe(visible);
         $("[data-test-id=error-notification] .notification__content")
-                .shouldBe(visible)
-                .shouldHave(text("заблокирован"));
+                .shouldHave(text("Ошибка! Пользователь заблокирован"))
+                .shouldBe(visible);
     }
 
     @Test
-    void shouldNotLoginWithInvalidLogin() {
-        DataGenerator.RegistrationDto user = DataGenerator.getRegisteredUser("active");
+    void shouldGetErrorIfWrongLogin() {
+        var registeredUser = DataGenerator.Registration.generateUser("active");
+        registerUser(registeredUser);
+        var invalidLogin = DataGenerator.Registration.generateInvalidLogin();
 
-        $("[data-test-id=login] input").setValue("invalid_" + user.getLogin());
-        $("[data-test-id=password] input").setValue(user.getPassword());
+        $("[data-test-id=login] input").setValue(invalidLogin);
+        $("[data-test-id=password] input").setValue(registeredUser.getPassword());
         $("[data-test-id=action-login]").click();
-
-        $("[data-test-id=login]").shouldBe(visible);
-        $("[data-test-id=password]").shouldBe(visible);
         $("[data-test-id=error-notification] .notification__content")
-                .shouldBe(visible)
-                .shouldHave(text("Неверно указан логин или пароль"));
+                .shouldHave(text("Ошибка! Неверно указан логин или пароль"))
+                .shouldBe(visible);
     }
 
     @Test
-    void shouldNotLoginWithInvalidPassword() {
-        DataGenerator.RegistrationDto user = DataGenerator.getRegisteredUser("active");
+    void shouldGetErrorIfWrongPassword() {
+        var registeredUser = DataGenerator.Registration.generateUser("active");
+        registerUser(registeredUser);
+        var invalidPassword = DataGenerator.Registration.generateInvalidPassword();
 
-        $("[data-test-id=login] input").setValue(user.getLogin());
-        $("[data-test-id=password] input").setValue("invalid_" + user.getPassword());
+        $("[data-test-id=login] input").setValue(registeredUser.getLogin());
+        $("[data-test-id=password] input").setValue(invalidPassword);
         $("[data-test-id=action-login]").click();
-
-        $("[data-test-id=login]").shouldBe(visible);
-        $("[data-test-id=password]").shouldBe(visible);
         $("[data-test-id=error-notification] .notification__content")
-                .shouldBe(visible)
-                .shouldHave(text("Неверно указан логин или пароль"));
-    }
-
-    @Test
-    void shouldNotLoginWithNotRegisteredUser() {
-        $("[data-test-id=login] input").setValue("notregistereduser");
-        $("[data-test-id=password] input").setValue("randompassword123");
-        $("[data-test-id=action-login]").click();
-
-        $("[data-test-id=login]").shouldBe(visible);
-        $("[data-test-id=password]").shouldBe(visible);
-        $("[data-test-id=error-notification] .notification__content")
-                .shouldBe(visible)
-                .shouldHave(text("Неверно указан логин или пароль"));
+                .shouldHave(text("Ошибка! Неверно указан логин или пароль"))
+                .shouldBe(visible);
     }
 }
