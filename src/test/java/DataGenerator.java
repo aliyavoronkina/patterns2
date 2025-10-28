@@ -13,11 +13,11 @@ public class DataGenerator {
         }
 
         public static RegistrationDto generateUserWithInvalidLogin() {
-            return new RegistrationDto(generateInvalidLogin(), generateRandomPassword(), "active");
+            return new RegistrationDto(generateRandomLogin(), generateRandomPassword(), "active");
         }
 
         public static RegistrationDto generateUserWithInvalidPassword() {
-            return new RegistrationDto(generateRandomLogin(), generateInvalidPassword(), "active");
+            return new RegistrationDto(generateRandomLogin(), generateRandomPassword(), "active");
         }
 
         public static String generateRandomLogin() {
@@ -26,14 +26,6 @@ public class DataGenerator {
 
         public static String generateRandomPassword() {
             return RandomStringUtils.randomAlphanumeric(10);
-        }
-
-        public static String generateInvalidLogin() {
-            return RandomStringUtils.randomAlphanumeric(10) + "#";
-        }
-
-        public static String generateInvalidPassword() {
-            return RandomStringUtils.randomAlphanumeric(10) + "#";
         }
     }
 }

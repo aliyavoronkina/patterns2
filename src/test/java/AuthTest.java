@@ -71,11 +71,12 @@ class AuthTest {
 
     @Test
     void shouldGetErrorIfWrongLogin() {
-        var invalidUser = DataGenerator.Registration.generateUserWithInvalidLogin();
-        registerUser(invalidUser);
+        var registeredUser = DataGenerator.Registration.generateUser("active");
+        registerUser(registeredUser);
+        var wrongUser = DataGenerator.Registration.generateUserWithInvalidLogin();
 
-        $("[data-test-id=login] input").setValue(invalidUser.getLogin());
-        $("[data-test-id=password] input").setValue(invalidUser.getPassword());
+        $("[data-test-id=login] input").setValue(wrongUser.getLogin());
+        $("[data-test-id=password] input").setValue(registeredUser.getPassword());
         $("[data-test-id=action-login]").click();
         $("[data-test-id=error-notification] .notification__content")
                 .shouldHave(text("Ошибка! Неверно указан логин или пароль"))
@@ -84,11 +85,12 @@ class AuthTest {
 
     @Test
     void shouldGetErrorIfWrongPassword() {
-        var invalidUser = DataGenerator.Registration.generateUserWithInvalidPassword();
-        registerUser(invalidUser);
+        var registeredUser = DataGenerator.Registration.generateUser("active");
+        registerUser(registeredUser);
+        var wrongUser = DataGenerator.Registration.generateUserWithInvalidPassword();
 
-        $("[data-test-id=login] input").setValue(invalidUser.getLogin());
-        $("[data-test-id=password] input").setValue(invalidUser.getPassword());
+        $("[data-test-id=login] input").setValue(registeredUser.getLogin());
+        $("[data-test-id=password] input").setValue(wrongUser.getPassword());
         $("[data-test-id=action-login]").click();
         $("[data-test-id=error-notification] .notification__content")
                 .shouldHave(text("Ошибка! Неверно указан логин или пароль"))
