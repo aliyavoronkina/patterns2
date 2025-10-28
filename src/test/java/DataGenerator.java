@@ -12,6 +12,14 @@ public class DataGenerator {
             return new RegistrationDto(generateRandomLogin(), generateRandomPassword(), status);
         }
 
+        public static RegistrationDto generateUserWithInvalidLogin() {
+            return new RegistrationDto(generateInvalidLogin(), generateRandomPassword(), "active");
+        }
+
+        public static RegistrationDto generateUserWithInvalidPassword() {
+            return new RegistrationDto(generateRandomLogin(), generateInvalidPassword(), "active");
+        }
+
         public static String generateRandomLogin() {
             return RandomStringUtils.randomAlphanumeric(10);
         }
