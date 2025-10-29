@@ -1,38 +1,66 @@
-import java.util.Random;
+import com.github.javafaker.Faker;
+import io.restassured.builder.RequestSpecBuilder;
+import io.restassured.filter.log.LogDetail;
+import io.restassured.http.ContentType;
+import io.restassured.specification.RequestSpecification;
+
+import java.util.Locale;
+
+import static io.restassured.RestAssured.given;
 
 public class DataGenerator {
-    private static final String BASE_URL = "http://localhost:9999";
-    private static final Random random = new Random();
+    private static final RequestSpecification requestSpec = new RequestSpecBuilder()
+            .setBaseUri("http://localhost")
+            .setPort(9999)
+            .setAccept(ContentType.JSON)
+            .setContentType(ContentType.JSON)
+            .log(LogDetail.ALL)
+            .build();
 
-    private DataGenerator() {
+    private static final Faker faker = new Faker(new Locale("en"));
+
+    public static void registerUser(RegistrationDto user) {
+        given()
+                .spec(requestSpec)
+                .body(user)
+                .when()
+                .post("/api/system/users")
+                .then()
+                .statusCode(200);
     }
 
-    public static class Registration {
-        private Registration() {
-        }
+    public static RegistrationDto getRegisteredUser(String status) {
+        String login = generateLogin();
+        String password = generatePassword();
+        RegistrationDto user = new RegistrationDto(login, password, status);
+        registerUser(user);
+        return user;
+    }
 
-        public static RegistrationDto generateUser(String status) {
-            return new RegistrationDto(generateRandomLogin(), generateRandomPassword(), status);
-        }
+    public static RegistrationDto getRegisteredActiveUser() {
+        return getRegisteredUser("active");
+    }
 
-        public static void registerUser(RegistrationDto user) {
-        }
+    public static RegistrationDto getRegisteredBlockedUser() {
+        return getRegisteredUser("blocked");
+    }
 
-        public static String generateRandomLogin() {
-            return generateRandomString(10);
-        }
+    public static RegistrationDto getWrongLoginUser() {
+        return new RegistrationDto(generateLogin(), generatePassword(), "active");
+    }
 
-        public static String generateRandomPassword() {
-            return generateRandomString(10);
-        }
+    public static RegistrationDto getWrongPasswordUser() {
+        String login = generateLogin();
+        RegistrationDto user = new RegistrationDto(login, generatePassword(), "active");
+        registerUser(user);
+        return new RegistrationDto(login, generatePassword(), "active");
+    }
 
-        private static String generateRandomString(int length) {
-            String chars = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789";
-            StringBuilder sb = new StringBuilder();
-            for (int i = 0; i < length; i++) {
-                sb.append(chars.charAt(random.nextInt(chars.length())));
-            }
-            return sb.toString();
-        }
+    public static String generateLogin() {
+        return faker.name().username();
+    }
+
+    public static String generatePassword() {
+        return faker.internet().password();
     }
 }
