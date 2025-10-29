@@ -20,6 +20,19 @@ jobs:
       - name: Make gradlew executable
         run: chmod +x gradlew
       - name: Start application
-        run: java -jar app-ibank.jar --server.port=9999 &
+        run: |
+          java -jar app-ibank.jar --server.port=9999 &
+          echo "Application starting on port 9999..."
+      - name: Wait for application to start
+        run: |
+          echo "Waiting for application to be ready..."
+          for i in {1..30}; do
+            if curl -f -s http://localhost:9999 > /dev/null; then
+              echo "Application is ready!"
+              break
+            fi
+            echo "Attempt $i/30: Application not ready yet, waiting 2 seconds..."
+            sleep 2
+          done
       - name: Run tests
         run: ./gradlew test --info -Dselenide.headless=true
