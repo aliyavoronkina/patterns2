@@ -1,42 +1,20 @@
-import io.restassured.builder.RequestSpecBuilder;
-import io.restassured.filter.log.LogDetail;
-import io.restassured.http.ContentType;
-import io.restassured.specification.RequestSpecification;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import static com.codeborne.selenide.Condition.*;
 import static com.codeborne.selenide.Selenide.*;
-import static io.restassured.RestAssured.given;
 
 class AuthTest {
-    private static RequestSpecification requestSpec = new RequestSpecBuilder()
-            .setBaseUri("http://localhost")
-            .setPort(9999)
-            .setAccept(ContentType.JSON)
-            .setContentType(ContentType.JSON)
-            .log(LogDetail.ALL)
-            .build();
 
     @BeforeEach
     void setup() {
         open("http://localhost:9999");
     }
 
-    private void registerUser(RegistrationDto user) {
-        given()
-                .spec(requestSpec)
-                .body(user)
-                .when()
-                .post("/api/system/users")
-                .then()
-                .statusCode(200);
-    }
-
     @Test
     void shouldSuccessfulLoginIfRegisteredActiveUser() {
         var registeredUser = DataGenerator.Registration.generateUser("active");
-        registerUser(registeredUser);
+        // Пользователь предварительно зарегистрирован в системе
 
         $("[data-test-id=login] input").setValue(registeredUser.getLogin());
         $("[data-test-id=password] input").setValue(registeredUser.getPassword());
@@ -59,7 +37,7 @@ class AuthTest {
     @Test
     void shouldGetErrorIfBlockedUser() {
         var blockedUser = DataGenerator.Registration.generateUser("blocked");
-        registerUser(blockedUser);
+        // Заблокированный пользователь предварительно зарегистрирован
 
         $("[data-test-id=login] input").setValue(blockedUser.getLogin());
         $("[data-test-id=password] input").setValue(blockedUser.getPassword());
@@ -72,10 +50,9 @@ class AuthTest {
     @Test
     void shouldGetErrorIfWrongLogin() {
         var registeredUser = DataGenerator.Registration.generateUser("active");
-        registerUser(registeredUser);
-        var wrongUser = DataGenerator.Registration.generateUserWithInvalidLogin();
+        // Пользователь предварительно зарегистрирован
 
-        $("[data-test-id=login] input").setValue(wrongUser.getLogin());
+        $("[data-test-id=login] input").setValue("wrong_" + registeredUser.getLogin());
         $("[data-test-id=password] input").setValue(registeredUser.getPassword());
         $("[data-test-id=action-login]").click();
         $("[data-test-id=error-notification] .notification__content")
@@ -86,11 +63,10 @@ class AuthTest {
     @Test
     void shouldGetErrorIfWrongPassword() {
         var registeredUser = DataGenerator.Registration.generateUser("active");
-        registerUser(registeredUser);
-        var wrongUser = DataGenerator.Registration.generateUserWithInvalidPassword();
+        // Пользователь предварительно зарегистрирован
 
         $("[data-test-id=login] input").setValue(registeredUser.getLogin());
-        $("[data-test-id=password] input").setValue(wrongUser.getPassword());
+        $("[data-test-id=password] input").setValue("wrong_" + registeredUser.getPassword());
         $("[data-test-id=action-login]").click();
         $("[data-test-id=error-notification] .notification__content")
                 .shouldHave(text("Ошибка! Неверно указан логин или пароль"))

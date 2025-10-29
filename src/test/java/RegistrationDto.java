@@ -1,7 +1,7 @@
 public class RegistrationDto {
-    private final String login;
-    private final String password;
-    private final String status;
+    private String login;
+    private String password;
+    private String status;
 
     public RegistrationDto(String login, String password, String status) {
         this.login = login;
