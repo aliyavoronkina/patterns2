@@ -19,5 +19,7 @@ jobs:
           distribution: 'temurin'
       - name: Make gradlew executable
         run: chmod +x gradlew
+      - name: Start application
+        run: java -jar app-ibank.jar --server.port=9999 &
       - name: Run tests
         run: ./gradlew test --info -Dselenide.headless=true
