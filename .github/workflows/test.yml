@@ -1,10 +1,6 @@
-name: Test
+name: Java Tests
 
-on:
-  push:
-    branches: [ main ]
-  pull_request:
-    branches: [ main ]
+on: [push, pull_request]
 
 jobs:
   test:
@@ -12,27 +8,35 @@ jobs:
 
     steps:
       - uses: actions/checkout@v3
+
       - name: Set up JDK 17
         uses: actions/setup-java@v3
         with:
           java-version: '17'
           distribution: 'temurin'
+
       - name: Make gradlew executable
-        run: chmod +x gradlew
-      - name: Start application
+        run: chmod +x ./gradlew
+
+      - name: Setup Chrome
+        uses: browser-actions/setup-chrome@v1
+
+      - name: Check if application exists
         run: |
-          java -jar app-ibank.jar --server.port=9999 &
-          echo "Application starting on port 9999..."
+          echo "Checking application files..."
+          find . -name "*.jar" -type f
+          ls -la artifacts/ || echo "No artifacts folder"
+      - name: Start application in test mode
+        run: java -jar artifacts/app-ibank.jar -P:profile=test &
+
       - name: Wait for application to start
+        run: sleep 30
+
+      - name: Check if application is running
         run: |
-          echo "Waiting for application to be ready..."
-          for i in {1..30}; do
-            if curl -f -s http://localhost:9999 > /dev/null; then
-              echo "Application is ready!"
-              break
-            fi
-            echo "Attempt $i/30: Application not ready yet, waiting 2 seconds..."
-            sleep 2
-          done
-      - name: Run tests
+          echo "Testing application connection..."
+          curl -f http://localhost:9999 || echo "Application may need more time to start"
+          sleep 10
+          curl -f http://localhost:9999 || (echo "Application failed to start" && exit 1)
+      - name: Run tests with detailed info
         run: ./gradlew test --info -Dselenide.headless=true
